@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_age/api/module/AniPreUpList.dart';
 import 'package:flutter_swiper_plus/flutter_swiper_plus.dart';
+
 import 'api/apis.dart' as APIS;
 import 'api/module/Slipic.dart';
 
@@ -11,9 +13,10 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
-  List<Slipic> _images = [];
+  List<Slipic>? _images;
+  AniPreUpList? _homeList;
 
-  final OutlineInputBorder _InputBorderStyle = OutlineInputBorder(
+  final OutlineInputBorder _inputBorderStyle = OutlineInputBorder(
     borderSide: BorderSide(color: Colors.green),
     borderRadius: BorderRadius.all(Radius.circular(50.0)),
   );
@@ -22,10 +25,20 @@ class _Home extends State<Home> {
   void initState() {
     super.initState();
     APIS.getSlipic().then((response) {
-      print(response.body);
       List responseJson = json.decode(response.body);
       setState(() {
         _images = responseJson.map((map) => Slipic.fromJson(map)).toList();
+      });
+    });
+
+    APIS.getHomeList({
+      "update": 12,
+      "recommend": 12
+    }).then((response) {
+      Map<String, dynamic> responseJson = json.decode(response.body);
+      print(responseJson);
+      setState(() {
+        _homeList = AniPreUpList.fromJson(responseJson);
       });
     });
   }
@@ -54,27 +67,26 @@ class _Home extends State<Home> {
                         vertical: 0,
                         horizontal: 25,
                       ),
-                      enabledBorder: _InputBorderStyle,
-                      focusedBorder: _InputBorderStyle,
+                      enabledBorder: _inputBorderStyle,
+                      focusedBorder: _inputBorderStyle,
                     ),
                   ),
                 ),
-                if(_images.length > 0)
                   Container(
-                    height: 250,
-                    child: Swiper(
+                    height: 200,
+                    child: _images != null ? Swiper(
                       itemBuilder: (BuildContext context, int index) {
                         return new Image.network(
-                          _images[index].PicUrl,
+                          _images![index].PicUrl,
                           fit: BoxFit.fill,
                         );
                       },
                       indicatorLayout: PageIndicatorLayout.COLOR,
                       autoplay: true,
-                      itemCount: _images.length,
+                      itemCount: _images!.length,
                       pagination: new SwiperPagination(),
                       control: new SwiperControl(),
-                    ),
+                    ) : Text(''),
                   ),
               ],
             ),

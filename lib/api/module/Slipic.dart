@@ -10,8 +10,8 @@ class Slipic {
     required this.Title,
     required this.NewTitle,
     required this.PicUrl,
-    required this.Time
-});
+    required this.Time,
+  });
 
   factory Slipic.fromJson(Map<String, dynamic> json) {
     return Slipic(

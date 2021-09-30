@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_age/api/module/AniPreUpList.dart';
@@ -15,6 +16,7 @@ class Home extends StatefulWidget {
 class _Home extends State<Home> {
   List<Slipic>? _images;
   AniPreUpList? _homeList;
+  final weekTabs = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
   final OutlineInputBorder _inputBorderStyle = OutlineInputBorder(
     borderSide: BorderSide(color: Colors.green),
@@ -31,10 +33,7 @@ class _Home extends State<Home> {
       });
     });
 
-    APIS.getHomeList({
-      "update": 12,
-      "recommend": 12
-    }).then((response) {
+    APIS.getHomeList({"update": 12, "recommend": 12}).then((response) {
       Map<String, dynamic> responseJson = json.decode(response.body);
       print(responseJson);
       setState(() {
@@ -72,22 +71,86 @@ class _Home extends State<Home> {
                     ),
                   ),
                 ),
-                  Container(
-                    height: 200,
-                    child: _images != null ? Swiper(
-                      itemBuilder: (BuildContext context, int index) {
-                        return new Image.network(
-                          _images![index].PicUrl,
-                          fit: BoxFit.fill,
-                        );
-                      },
-                      indicatorLayout: PageIndicatorLayout.COLOR,
-                      autoplay: true,
-                      itemCount: _images!.length,
-                      pagination: new SwiperPagination(),
-                      control: new SwiperControl(),
-                    ) : Text(''),
+                SizedBox(
+                  height: 200,
+                  child: _images != null
+                      ? Swiper(
+                          itemBuilder: (BuildContext context, int index) {
+                            return new Image.network(
+                              _images![index].PicUrl,
+                              fit: BoxFit.fill,
+                            );
+                          },
+                          indicatorLayout: PageIndicatorLayout.COLOR,
+                          autoplay: true,
+                          itemCount: _images!.length,
+                          pagination: new SwiperPagination(),
+                          control: new SwiperControl(),
+                        )
+                      : Text(''),
+                ),
+                SizedBox(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: Text("每日推荐"),
+                      ),
+                      GridView.builder(
+                        // 处理GridView中滑动父级ListView无法滑动
+                        physics: NeverScrollableScrollPhysics(),
+                        // 处理ListView和GridView嵌套报错问题
+                        shrinkWrap: true,
+                        itemCount: _homeList!.aniPreEvDay.length,
+                        cacheExtent: 50,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 3,
+                          mainAxisSpacing: 3,
+                          childAspectRatio: 3 / 4,
+                        ),
+                        itemBuilder: (BuildContext context, int index) {
+                          return Image.network(
+                            _homeList!.aniPreEvDay[index].picSmall,
+                            alignment: Alignment.center,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      ),
+                    ],
                   ),
+                ),
+                SizedBox(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: Text("最近更新"),
+                      ),
+                      GridView.builder(
+                        // 处理GridView中滑动父级ListView无法滑动
+                        physics: NeverScrollableScrollPhysics(),
+                        // 处理ListView和GridView嵌套报错问题
+                        shrinkWrap: true,
+                        itemCount: _homeList!.aniPreUp.length,
+                        cacheExtent: 50,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 3,
+                          mainAxisSpacing: 3,
+                          childAspectRatio: 3 / 4,
+                        ),
+                        itemBuilder: (BuildContext context, int index) {
+                          return Image.network(
+                            _homeList!.aniPreUp[index].picSmall,
+                            alignment: Alignment.center,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),
